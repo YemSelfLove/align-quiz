@@ -142,8 +142,28 @@
   .r-body{font-size:15.5px;color:var(--deep-ink);opacity:.92;margin:0;line-height:1.85;max-width:54ch}
   .r-div{height:1px;background:rgba(237,231,218,.14);margin:34px 0}
   .r-foot{font-size:15px;color:var(--deep-soft);line-height:1.85;max-width:52ch;margin:0 0 6px}
+  /* 會員限定內容預覽（只列標題，不含內文） */
+  .locked{margin-top:34px;padding:24px 26px;border:1px solid rgba(237,231,218,.13);border-radius:var(--radius)}
+  .locked-label{font-size:11.5px;letter-spacing:.28em;color:var(--brass);margin:0 0 16px}
+  .locked-list{list-style:none;margin:0;padding:0}
+  .locked-list li{
+    position:relative;padding-left:26px;margin-bottom:13px;
+    font-size:15px;line-height:1.75;color:var(--deep-soft)
+  }
+  .locked-list li:last-child{margin-bottom:0}
+  .locked-list li::before{
+    content:"";position:absolute;left:2px;top:.62em;
+    width:9px;height:7px;border-radius:1.5px;
+    border:1px solid var(--brass);opacity:.75
+  }
+  .locked-list li::after{
+    content:"";position:absolute;left:4.5px;top:.34em;
+    width:4px;height:5px;border:1px solid var(--brass);
+    border-bottom:none;border-radius:3px 3px 0 0;opacity:.75
+  }
+
   .cta{
-    margin-top:38px;padding:26px 26px;border:1px solid rgba(199,169,107,.32);
+    margin-top:26px;padding:26px 26px;border:1px solid rgba(199,169,107,.32);
     border-radius:var(--radius);background:rgba(255,255,255,.03)
   }
   .cta p{margin:0 0 6px;font-size:15px;color:var(--deep-ink);line-height:1.8}
@@ -201,17 +221,24 @@
     <div class="r-tie" id="rTie" hidden></div>
 
     <div class="r-block"><p class="r-label">核心信念</p><p class="r-body" id="rBelief"></p></div>
-    <div class="r-block"><p class="r-label">它平時怎麼出現</p><p class="r-body" id="rShow"></p></div>
-    <div class="r-block"><p class="r-label">它其實在保護你什麼</p><p class="r-body" id="rProtect"></p></div>
-    <div class="r-block"><p class="r-label">鬆動的方向</p><p class="r-body" id="rLoosen"></p></div>
 
     <div class="r-div"></div>
     <p class="r-foot">大部分人不會只有一種。這個測驗，沒有要給你一個新標籤——它只是讓你，在下一次那個反應又自動彈出來時，多一秒，認得出它。</p>
 
+    <div class="locked">
+      <p class="locked-label">完整解讀・會員限定</p>
+      <ul class="locked-list">
+        <li>它平時，是怎麼出現在你身上的</li>
+        <li>它其實在保護你什麼</li>
+        <li>可以從哪裡，開始鬆動</li>
+        <li id="lockedTie">當你身上同時有兩型，它們是怎麼合作的</li>
+      </ul>
+    </div>
+
     <div class="cta">
-      <p>想順著你的主導型，把「你自己那一套」畫出來？</p>
-      <p>完整的〈舊模式辨識工作表〉、自我催眠引導與深度版本，在 ALIGN 會員空間裡。</p>
-      <p style="margin-top:12px"><a id="ctaLink" href="#" target="_blank" rel="noopener">走進 ALIGN 的空間 →</a></p>
+      <p>真正讓人卡住的位置，幾乎都不在檯面那一套。</p>
+      <p>它在兩套的接縫處——那裡，是〈舊模式辨識工作表〉開始的地方。</p>
+      <p style="margin-top:12px"><a id="ctaLink" href="#" target="_blank" rel="noopener">走進 ALIGN 留白室 →</a></p>
     </div>
 
     <p class="share-hint">🌿 把上面那一句，截圖留給今天的自己。</p>
@@ -230,7 +257,7 @@
      ⚙️ 設定區 — 要改連結，只需要改下面這一行
      ----------------------------------------------------------
      CTA_LINK：測驗結果頁底部的行動呼籲連結
-     目前指向：🌙 ALIGN 留白室・導覽文（會員限定・置頂）
+     目前指向：🌙 ALIGN 留白室・導覽文
      ========================================================== */
   var CTA_LINK = "https://vocus.cc/article/6a65f50ffd897800011c30b9";
   /* ========================================================== */
@@ -279,25 +306,19 @@
       {t:"r",text:"不管怎麼努力，最後都會回到原點"}]}
   ];
 
+  /* 注意：這裡只保留公開層（鏡子句＋核心信念）。
+     「它平時怎麼出現」「它其實在保護你什麼」「鬆動的方向」與雙型接縫，
+     屬會員限定內容，刻意不寫進這個檔案——本頁原始碼是公開可讀的。 */
   var RESULTS = {
     d:{name:"防禦型腳本", tag:"「先確保不出事」",
       mirror:"你不是膽小，你只是太久，一直在替一個早就過去的危險站崗。",
-      belief:"世界是有風險的，我要先守住，才不會受傷。",
-      show:"你行動的起點，常是「避免壞事」，而不是「靠近想要的」。你擅長預想最壞的情況、把自己準備到滴水不漏——也因為這樣，你很少讓自己真正冒一次險，真正鬆開一次。",
-      protect:"這套腳本，最早很可能長在一個「出錯要付代價」的環境裡。它讓你安全地，活到了現在。它不是缺點，是一套很盡責的保全系統。",
-      loosen:"練習在一件很小的事上，先不做最壞打算，看看會怎樣。先分清楚——現在讓你收緊的，是真實的危險，還是那套舊警報。（EP8）"},
+      belief:"世界是有風險的，我要先守住，才不會受傷。"},
     p:{name:"證明型腳本", tag:"「我要夠好，才有資格」",
       mirror:"你要的從來不是更成功，是有一次，不靠表現，也被留下。",
-      belief:"我的價值不是本來就有的，是要靠表現換來的。",
-      show:"你做很多事的底層，都藏著一句「我要證明我可以」。成功時鬆一口氣多過快樂，休息時有一點罪惡感，被肯定的下一秒，又開始擔心下一次。",
-      protect:"它讓你一路很努力、很上進，也真的帶你去過很多地方。它保護的，是那個曾經覺得「不夠好，就不會被愛」的你。",
-      loosen:"把心裡那把「夠不夠好」的尺，暫時放下一次。問「我的存在能帶來什麼」，而不是「我能得到什麼肯定」。（EP19）"},
+      belief:"我的價值不是本來就有的，是要靠表現換來的。"},
     r:{name:"重複型腳本", tag:"「反正最後都會這樣」",
       mirror:"劇本是舊的，但寫劇本的人，一直都是現在的你。",
-      belief:"有些結局是註定的，我大概本來就是會走到這裡的人。",
-      show:"場景一直換，人一直換，但那個「又來了」的熟悉感總會回來。你未必在重複同一件事，你在重複同一個結論。",
-      protect:"熟悉，比未知安全。一個雖然難受、但可以預測的結局，讓你不用面對真正的不確定。它替你擋掉的，是「萬一這次真的不一樣，我卻不敢相信」的那種懸空。",
-      loosen:"願意停在「還不知道結局」的空白裡，哪怕只有一下下。真正的轉變，常常就發生在那個空白裡。（EP11）"}
+      belief:"有些結局是註定的，我大概本來就是會走到這裡的人。"}
   };
 
   // ==== 把每題選項洗牌一次（display 隨機，計分靠 type 不受影響）====
@@ -370,14 +391,12 @@
     $("rMirror").textContent = res.mirror;
     $("rTag").textContent = res.tag;
     $("rBelief").textContent = res.belief;
-    $("rShow").textContent = res.show;
-    $("rProtect").textContent = res.protect;
-    $("rLoosen").textContent = res.loosen;
 
     var tie = $("rTie");
     if(c[second] === c[top] && c[top] > 0){
       tie.hidden = false;
-      tie.textContent = "你身上同時運作著兩套腳本——「"+res.name+"」與「"+RESULTS[second].name+"」。很常見：通常一套在檯面上、一套藏在底層。兩篇都值得讀。";
+      tie.textContent = "你身上同時運作著兩套腳本——「"+res.name+"」與「"+RESULTS[second].name+"」。很常見：通常一套在檯面上、一套藏在底層。";
+      $("lockedTie").textContent = "「"+res.name+"」與「"+RESULTS[second].name+"」，在你身上是怎麼合作的";
     } else {
       tie.hidden = true;
     }
