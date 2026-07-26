@@ -1,0 +1,376 @@
+<!-- ALIGN 潛意識主導模式測驗・互動版 — single-file, no external storage -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>你的潛意識，正在用哪一套腳本替你做選擇？｜ALIGN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E7E2D8;        /* soft warm porcelain (cooler than the cream default) */
+    --paper-2:#DED8CB;
+    --ink:#2A302C;          /* deep warm charcoal-green, "ink / volcanic stone" */
+    --ink-soft:#5A635B;
+    --sage:#6E8971;         /* muted jade — Balinese jungle shade */
+    --sage-deep:#4C6353;
+    --sand:#C7B79E;
+    --line:#CDC5B4;
+    /* deep "inner room" for the result descent */
+    --deep:#212a26;
+    --deep-2:#1a221e;
+    --deep-ink:#EDE7DA;
+    --deep-soft:#A8B2A6;
+    --brass:#C7A96B;        /* warm brass, not acid — avoids the dark+neon default */
+    --radius:18px;
+    --maxw:660px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+    font-weight:300;
+    line-height:1.9;
+    letter-spacing:.01em;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:44px 22px;
+    transition:background-color .9s ease, color .9s ease;
+    -webkit-font-smoothing:antialiased;
+  }
+  body.is-result{background:var(--deep);color:var(--deep-ink)}
+  .wrap{width:100%;max-width:var(--maxw);margin:0 auto}
+  .serif{font-family:"Noto Serif TC",Georgia,"Songti TC","Source Han Serif TC",serif}
+
+  .eyebrow{
+    font-size:12.5px;letter-spacing:.42em;text-indent:.42em;
+    color:var(--sage-deep);font-weight:400;text-transform:none;margin:0 0 22px
+  }
+  body.is-result .eyebrow{color:var(--brass)}
+
+  /* descent motif */
+  .descent{display:flex;flex-direction:column;gap:7px;align-items:center;margin:6px 0 30px}
+  .descent span{width:1px;height:14px;background:var(--sand);opacity:.9}
+  .descent span:nth-child(2){height:22px;opacity:.65}
+  .descent span:nth-child(3){height:30px;opacity:.4}
+
+  h1.title{
+    font-size:clamp(27px,5.4vw,38px);font-weight:600;line-height:1.42;
+    margin:0 0 24px;letter-spacing:.005em
+  }
+  .lede{font-size:16px;color:var(--ink-soft);margin:0 0 14px;max-width:52ch}
+  .lede.small{font-size:14.5px;margin-top:20px}
+
+  .btn{
+    appearance:none;border:none;cursor:pointer;font-family:inherit;
+    background:var(--ink);color:var(--paper);
+    font-size:15px;font-weight:400;letter-spacing:.18em;text-indent:.18em;
+    padding:16px 40px;border-radius:999px;margin-top:34px;
+    transition:transform .5s cubic-bezier(.2,.8,.2,1), background-color .3s, opacity .3s;
+  }
+  .btn:hover{background:var(--sage-deep);transform:translateY(-1px)}
+  .btn:focus-visible{outline:2px solid var(--sage-deep);outline-offset:4px}
+  body.is-result .btn{background:var(--brass);color:#20211c}
+  body.is-result .btn:hover{background:#d8bd85}
+
+  /* ---- screens ---- */
+  .screen{display:none;animation:fade .6s ease both}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---- progress ---- */
+  .progress{display:flex;align-items:center;gap:14px;margin-bottom:40px}
+  .progress .count{font-size:12.5px;letter-spacing:.28em;color:var(--ink-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .track{position:relative;flex:1;height:1.5px;background:var(--line);border-radius:2px;overflow:hidden}
+  .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--sage);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+
+  .qwrap{animation:qfade .45s ease both}
+  @keyframes qfade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .q{font-size:clamp(20px,3.6vw,25px);font-weight:600;line-height:1.62;margin:0 0 30px}
+
+  .opts{display:flex;flex-direction:column;gap:13px}
+  .opt{
+    appearance:none;text-align:left;cursor:pointer;font-family:inherit;
+    background:rgba(255,255,255,.42);
+    border:1px solid var(--line);
+    color:var(--ink);font-size:16px;font-weight:300;line-height:1.72;
+    padding:19px 22px;border-radius:14px;
+    transition:border-color .25s, background-color .25s, transform .25s, box-shadow .25s;
+  }
+  .opt:hover{border-color:var(--sage);background:#fff;transform:translateX(3px)}
+  .opt:focus-visible{outline:2px solid var(--sage-deep);outline-offset:3px}
+  .opt.picked{border-color:var(--sage-deep);background:#fff;box-shadow:inset 3px 0 0 var(--sage-deep)}
+
+  .back{
+    appearance:none;border:none;background:none;cursor:pointer;font-family:inherit;
+    color:var(--ink-soft);font-size:13.5px;letter-spacing:.06em;margin-top:28px;padding:6px 2px;
+    opacity:.75;transition:opacity .2s
+  }
+  .back:hover{opacity:1;text-decoration:underline}
+  .back[hidden]{display:none}
+
+  /* ---- result ---- */
+  .r-type{font-size:13px;letter-spacing:.34em;color:var(--brass);margin:0 0 18px}
+  .r-mirror{
+    font-size:clamp(23px,4.6vw,32px);font-weight:600;line-height:1.66;
+    margin:0 0 8px;letter-spacing:.01em
+  }
+  .r-quote{color:var(--brass);font-size:22px;line-height:1;margin-bottom:10px;display:block}
+  .r-tag{font-size:15px;color:var(--deep-soft);margin:0 0 40px}
+  .r-tie{
+    font-size:14.5px;color:var(--deep-ink);background:rgba(199,169,107,.12);
+    border:1px solid rgba(199,169,107,.35);border-radius:12px;padding:15px 18px;margin:0 0 38px;line-height:1.7
+  }
+  .r-block{margin:0 0 30px}
+  .r-label{font-size:11.5px;letter-spacing:.28em;color:var(--brass);margin:0 0 9px}
+  .r-body{font-size:15.5px;color:var(--deep-ink);opacity:.92;margin:0;line-height:1.85;max-width:54ch}
+  .r-div{height:1px;background:rgba(237,231,218,.14);margin:34px 0}
+  .r-foot{font-size:15px;color:var(--deep-soft);line-height:1.85;max-width:52ch;margin:0 0 6px}
+  .cta{
+    margin-top:38px;padding:26px 26px;border:1px solid rgba(199,169,107,.32);
+    border-radius:var(--radius);background:rgba(255,255,255,.03)
+  }
+  .cta p{margin:0 0 6px;font-size:15px;color:var(--deep-ink);line-height:1.8}
+  .cta a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(199,169,107,.5);padding-bottom:1px}
+  .cta a:hover{border-bottom-color:var(--brass)}
+  .share-hint{font-size:13px;color:var(--deep-soft);margin-top:26px;letter-spacing:.02em}
+  .r-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px}
+  .link-btn{
+    appearance:none;border:none;background:none;cursor:pointer;font-family:inherit;
+    color:var(--deep-soft);font-size:13.5px;letter-spacing:.08em;padding:8px 2px;
+    border-bottom:1px solid transparent;transition:color .2s,border-color .2s
+  }
+  .link-btn:hover{color:var(--deep-ink);border-bottom-color:var(--deep-soft)}
+
+  .foot-note{margin-top:46px;font-size:12px;color:var(--ink-soft);opacity:.7;letter-spacing:.02em}
+  body.is-result .foot-note{color:var(--deep-soft)}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none!important;animation:none!important}
+  }
+  @media (max-width:480px){
+    body{padding:32px 18px}
+    .opt{padding:17px 18px}
+  }
+</style>
+
+<div class="wrap">
+
+  <!-- INTRO -->
+  <section id="intro" class="screen active">
+    <p class="eyebrow">潛意識主導模式測驗</p>
+    <div class="descent" aria-hidden="true"><span></span><span></span><span></span></div>
+    <h1 class="title serif">你的潛意識，正在用哪一套腳本，替你做選擇？</h1>
+    <p class="lede">很多時候替我們做反應的，不是當下的自己，而是一套早就寫好、隨時可以自動播放的腳本。</p>
+    <p class="lede small">10 道題。選最接近你直覺的那個——不是最理想的，是最誠實的。</p>
+    <button class="btn" id="start">開始</button>
+    <p class="foot-note">ALIGN｜AI × 潛意識 × 靈性美學　·　延伸自 EP7</p>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section id="quiz" class="screen">
+    <div class="progress">
+      <span class="count" id="count">01 / 10</span>
+      <div class="track"><div class="fill" id="fill"></div></div>
+    </div>
+    <div id="qhost"></div>
+    <button class="back" id="back" hidden>← 上一題</button>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="screen">
+    <p class="r-type" id="rType">你的主導腳本</p>
+    <p class="r-mirror serif"><span class="r-quote serif">“</span><span id="rMirror"></span></p>
+    <p class="r-tag" id="rTag"></p>
+    <div class="r-tie" id="rTie" hidden></div>
+
+    <div class="r-block"><p class="r-label">核心信念</p><p class="r-body" id="rBelief"></p></div>
+    <div class="r-block"><p class="r-label">它平時怎麼出現</p><p class="r-body" id="rShow"></p></div>
+    <div class="r-block"><p class="r-label">它其實在保護你什麼</p><p class="r-body" id="rProtect"></p></div>
+    <div class="r-block"><p class="r-label">鬆動的方向</p><p class="r-body" id="rLoosen"></p></div>
+
+    <div class="r-div"></div>
+    <p class="r-foot">大部分人不會只有一種。這個測驗，沒有要給你一個新標籤——它只是讓你，在下一次那個反應又自動彈出來時，多一秒，認得出它。</p>
+
+    <div class="cta">
+      <p>想順著你的主導型，把「你自己那一套」畫出來？</p>
+      <p>完整的〈舊模式辨識工作表〉、自我催眠引導與深度版本，在 ALIGN 會員空間裡。</p>
+      <p style="margin-top:12px"><a id="ctaLink" href="#" target="_blank" rel="noopener">走進 ALIGN 的空間 →</a></p>
+    </div>
+
+    <p class="share-hint">🌿 把上面那一句，截圖留給今天的自己。</p>
+    <div class="r-actions">
+      <button class="link-btn" id="restart">重新測驗</button>
+    </div>
+    <p class="foot-note">ALIGN｜AI × 潛意識 × 靈性美學</p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  // d = 防禦型, p = 證明型, r = 重複型
+  var QUESTIONS = [
+    {q:"面對一個新的機會或計畫，你的第一反應比較接近：",o:[
+      {t:"d",text:"先想「會不會出錯、萬一我撐不住怎麼辦」，先評估風險"},
+      {t:"p",text:"想「這個剛好可以證明我做得到」，很想抓住來表現"},
+      {t:"r",text:"心裡有個聲音：「這種事我以前試過，結果大概也差不多」"}]},
+    {q:"收到批評、或不如預期的回饋時，你會：",o:[
+      {t:"d",text:"立刻檢查自己哪裡做錯了，想趕快補救"},
+      {t:"p",text:"很想解釋，想讓對方知道我其實是有能力的"},
+      {t:"r",text:"浮起一種很熟悉的下沉感：「果然，我又不夠好」"}]},
+    {q:"訊息傳出去，對方已讀卻很久沒回，你心裡：",o:[
+      {t:"d",text:"開始想，是不是自己哪句話說錯了"},
+      {t:"p",text:"想再傳點什麼，確認自己在對方心裡還重要"},
+      {t:"r",text:"「又來了」——那種被晾在原地的感覺，很熟"}]},
+    {q:"要做一個選擇時，你最像：",o:[
+      {t:"d",text:"最怕選錯，所以想再多蒐集一點資料、遲遲不下決定"},
+      {t:"p",text:"傾向選那個「看起來最好、最不會被質疑」的版本"},
+      {t:"r",text:"選來選去，最後好像又回到同一種選擇"}]},
+    {q:"當你終於有空、或放假時：",o:[
+      {t:"d",text:"不太敢完全放鬆，怕一鬆下來就跟不上了"},
+      {t:"p",text:"忍不住做點「有產出」的事，才覺得自己沒有浪費時間"},
+      {t:"r",text:"明明想休息，卻又掉進同一個停不下來的循環"}]},
+    {q:"你努力的底層動力，最接近哪一句：",o:[
+      {t:"d",text:"「不要出事就好。」"},
+      {t:"p",text:"「我要證明我做得到。」"},
+      {t:"r",text:"「反正我一直以來，都是要這樣的。」"}]},
+    {q:"在一段關係裡，你最容易：",o:[
+      {t:"d",text:"收起自己真正的想法，避免衝突"},
+      {t:"p",text:"不斷付出或表現，想成為對方需要的那個人"},
+      {t:"r",text:"遇到的人不同，但相處下去，總有種似曾相識"}]},
+    {q:"當你成功、或被稱讚時，第一個冒出來的是：",o:[
+      {t:"d",text:"「先別高興太早，摔下來會很痛。」"},
+      {t:"p",text:"鬆一口氣：「終於證明我不是不行。」"},
+      {t:"r",text:"一種抽離：「這種好的感覺，通常不會維持太久。」"}]},
+    {q:"想開始一件事、卻遲遲沒動時，你心裡的聲音是：",o:[
+      {t:"d",text:"「還沒準備好，再多準備一點。」"},
+      {t:"p",text:"「如果做得不夠好，不如先別讓人看到。」"},
+      {t:"r",text:"「我就是一個會拖的人啊。」"}]},
+    {q:"很誠實地說，你心裡最深的那個怕，比較接近：",o:[
+      {t:"d",text:"出錯、失控、承受不了後果"},
+      {t:"p",text:"被發現「其實我沒有那麼好」"},
+      {t:"r",text:"不管怎麼努力，最後都會回到原點"}]}
+  ];
+
+  var RESULTS = {
+    d:{name:"防禦型腳本", tag:"「先確保不出事」",
+      mirror:"你不是膽小，你只是太久，一直在替一個早就過去的危險站崗。",
+      belief:"世界是有風險的，我要先守住，才不會受傷。",
+      show:"你行動的起點，常是「避免壞事」，而不是「靠近想要的」。你擅長預想最壞的情況、把自己準備到滴水不漏——也因為這樣，你很少讓自己真正冒一次險，真正鬆開一次。",
+      protect:"這套腳本，最早很可能長在一個「出錯要付代價」的環境裡。它讓你安全地，活到了現在。它不是缺點，是一套很盡責的保全系統。",
+      loosen:"練習在一件很小的事上，先不做最壞打算，看看會怎樣。先分清楚——現在讓你收緊的，是真實的危險，還是那套舊警報。（EP8）"},
+    p:{name:"證明型腳本", tag:"「我要夠好，才有資格」",
+      mirror:"你要的從來不是更成功，是有一次，不靠表現，也被留下。",
+      belief:"我的價值不是本來就有的，是要靠表現換來的。",
+      show:"你做很多事的底層，都藏著一句「我要證明我可以」。成功時鬆一口氣多過快樂，休息時有一點罪惡感，被肯定的下一秒，又開始擔心下一次。",
+      protect:"它讓你一路很努力、很上進，也真的帶你去過很多地方。它保護的，是那個曾經覺得「不夠好，就不會被愛」的你。",
+      loosen:"把心裡那把「夠不夠好」的尺，暫時放下一次。問「我的存在能帶來什麼」，而不是「我能得到什麼肯定」。（EP19）"},
+    r:{name:"重複型腳本", tag:"「反正最後都會這樣」",
+      mirror:"劇本是舊的，但寫劇本的人，一直都是現在的你。",
+      belief:"有些結局是註定的，我大概本來就是會走到這裡的人。",
+      show:"場景一直換，人一直換，但那個「又來了」的熟悉感總會回來。你未必在重複同一件事，你在重複同一個結論。",
+      protect:"熟悉，比未知安全。一個雖然難受、但可以預測的結局，讓你不用面對真正的不確定。它替你擋掉的，是「萬一這次真的不一樣，我卻不敢相信」的那種懸空。",
+      loosen:"願意停在「還不知道結局」的空白裡，哪怕只有一下下。真正的轉變，常常就發生在那個空白裡。（EP11）"}
+  };
+
+  // ==== 把每題選項洗牌一次（display 隨機，計分靠 type 不受影響）====
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  QUESTIONS.forEach(function(q){shuffle(q.o);});
+
+  var answers = new Array(QUESTIONS.length).fill(null); // stores 'd'/'p'/'r'
+  var idx = 0;
+
+  var $ = function(id){return document.getElementById(id);};
+  var body = document.body;
+  var screens = {intro:$("intro"), quiz:$("quiz"), result:$("result")};
+  function show(name){
+    Object.keys(screens).forEach(function(k){screens[k].classList.toggle("active", k===name);});
+    body.classList.toggle("is-result", name==="result");
+    window.scrollTo({top:0, behavior:"instant" in window ? "instant" : "auto"});
+  }
+
+  function pad(n){return (n<10?"0":"")+n;}
+
+  function renderQ(){
+    var q = QUESTIONS[idx];
+    $("count").textContent = pad(idx+1)+" / "+pad(QUESTIONS.length);
+    $("fill").style.width = ((idx)/QUESTIONS.length*100)+"%";
+    $("back").hidden = (idx===0);
+
+    var host = $("qhost");
+    var wrap = document.createElement("div");
+    wrap.className = "qwrap";
+    var h = document.createElement("p");
+    h.className = "q serif";
+    h.textContent = q.q;
+    wrap.appendChild(h);
+    var opts = document.createElement("div");
+    opts.className = "opts";
+    q.o.forEach(function(op){
+      var b = document.createElement("button");
+      b.className = "opt" + (answers[idx]===op.t ? " picked":"");
+      b.type = "button";
+      b.textContent = op.text;
+      b.addEventListener("click", function(){
+        answers[idx] = op.t;
+        // brief highlight, then advance
+        Array.prototype.forEach.call(opts.children, function(c){c.classList.remove("picked");});
+        b.classList.add("picked");
+        setTimeout(next, 190);
+      });
+      opts.appendChild(b);
+    });
+    wrap.appendChild(opts);
+    host.innerHTML = "";
+    host.appendChild(wrap);
+  }
+
+  function next(){
+    if(idx < QUESTIONS.length-1){ idx++; renderQ(); }
+    else { finish(); }
+  }
+  function prev(){ if(idx>0){ idx--; renderQ(); } }
+
+  function finish(){
+    var c = {d:0,p:0,r:0};
+    answers.forEach(function(a){ if(a) c[a]++; });
+    // rank
+    var order = Object.keys(c).sort(function(a,b){return c[b]-c[a];});
+    var top = order[0], second = order[1];
+    var res = RESULTS[top];
+
+    $("rType").textContent = "你的主導腳本・" + res.name;
+    $("rMirror").textContent = res.mirror;
+    $("rTag").textContent = res.tag;
+    $("rBelief").textContent = res.belief;
+    $("rShow").textContent = res.show;
+    $("rProtect").textContent = res.protect;
+    $("rLoosen").textContent = res.loosen;
+
+    var tie = $("rTie");
+    if(c[second] === c[top] && c[top] > 0){
+      tie.hidden = false;
+      tie.textContent = "你身上同時運作著兩套腳本——「"+res.name+"」與「"+RESULTS[second].name+"」。很常見：通常一套在檯面上、一套藏在底層。兩篇都值得讀。";
+    } else {
+      tie.hidden = true;
+    }
+    show("result");
+  }
+
+  // ==== wire up ====
+  $("start").addEventListener("click", function(){ idx=0; renderQ(); show("quiz"); });
+  $("back").addEventListener("click", prev);
+  $("restart").addEventListener("click", function(){
+    answers = new Array(QUESTIONS.length).fill(null);
+    QUESTIONS.forEach(function(q){shuffle(q.o);});
+    idx=0; show("intro");
+  });
+
+  // NOTE: 把下面連結換成你的 Vocus 沙龍／會員入口
+  $("ctaLink").setAttribute("href", "https://vocus.cc/");
+})();
+</script>
